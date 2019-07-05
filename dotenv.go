@@ -4,15 +4,11 @@ Package dotenv is a simple API for reading environment variables stored in files
 
 Parsing rules:
 
-1. BASIC=basic
-
-2. WHITE_SPACES = are trimmed
-
-3. # lines starting with "#"" are omitted
-
-4. blank lines are omitted
-
-5. ALREADY_EXPORTED_VARIABLES="are not overwritten"
+1. Variables should be stored as Key-Value pairs separated by "=" sign.
+2. Whitespaces around key and value are trimmed.
+3. Lines starting with "#" sign are omitted.
+4. Blank lines are omitted.
+5. Environment variables that are already exported are not getting overwritten by those read from .env file.
 
 */
 package dotenv
