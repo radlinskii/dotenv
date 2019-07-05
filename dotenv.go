@@ -53,7 +53,7 @@ func SetEnvFromPath(path string) error {
 		key := strings.TrimSpace(varinfo[0])
 		val := strings.TrimSpace(varinfo[1])
 
-		if os.Getenv(key) == "" {
+		if _, ok := os.LookupEnv(key); !ok {
 			err := os.Setenv(key, val)
 			if err != nil {
 				return err
