@@ -9,10 +9,8 @@ Tiny library for setting environment variables specified in `.env` files.
 
 ## Supported .env Syntax
 
-```.env
-BASIC_KEY=basic_value
-WHITE_SPACES = are trimmed
-# lines starting with "#" are omitted
-# blank lines are omitted
-ALREADY_EXPORTED_VARIABLES="are not overwritten"
-```
+1. Variables should be stored as Key-Value pairs separated by "=" sign.
+2. Whitespaces around key and value are trimmed.
+3. Lines starting with "#" sign are omitted.
+4. Blank lines are omitted.
+5. Environment variables that are already exported are not getting overwritten by those read from .env file.
