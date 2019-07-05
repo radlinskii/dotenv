@@ -13,8 +13,9 @@ Parsing rules:
 */
 
 import (
+	"errors"
+	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"strings"
 )
@@ -25,10 +26,15 @@ func SetEnv() {
 }
 
 // SetEnvFromPath sets env variables specified in the file in given path.
-func SetEnvFromPath(path string) {
+func SetEnvFromPath(path string) error {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		fmt.Printf("file: %q does not exist\n", path)
+		return nil
+	}
+
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
-		log.Fatalln(err)
+		return err
 	}
 
 	content := string(data)
@@ -41,7 +47,7 @@ func SetEnvFromPath(path string) {
 
 		varinfo := strings.SplitN(line, "=", 2)
 		if len(varinfo) != 2 {
-			log.Fatalln("Error parsing " + path + " file")
+			return errors.New("Error parsing " + path + " file")
 		}
 
 		key := strings.TrimSpace(varinfo[0])
@@ -50,8 +56,10 @@ func SetEnvFromPath(path string) {
 		if os.Getenv(key) == "" {
 			err := os.Setenv(key, val)
 			if err != nil {
-				log.Fatalln(err)
+				return err
 			}
 		}
 	}
+
+	return nil
 }
