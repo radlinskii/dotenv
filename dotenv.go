@@ -1,16 +1,21 @@
-package dotenv
-
 /*
+
+Package dotenv is a simple API for reading environment variables stored in files inside your project.
 
 Parsing rules:
 
 1. BASIC=basic
+
 2. WHITE_SPACES = are trimmed
+
 3. # lines starting with "#"" are omitted
-4. # blank lines are omitted
+
+4. blank lines are omitted
+
 5. ALREADY_EXPORTED_VARIABLES="are not overwritten"
 
 */
+package dotenv
 
 import (
 	"errors"
