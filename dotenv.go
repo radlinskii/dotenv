@@ -21,8 +21,8 @@ import (
 )
 
 // SetEnv sets env variables specified in the .env file in cwd.
-func SetEnv() {
-	SetEnvFromPath(".env")
+func SetEnv() error {
+	return SetEnvFromPath(".env")
 }
 
 // SetEnvFromPath sets env variables specified in the file in given path.
