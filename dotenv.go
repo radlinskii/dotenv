@@ -41,7 +41,7 @@ func SetEnvFromPath(path string) error {
 	lines := strings.Split(content, "\n")
 
 	for _, line := range lines {
-		if line == "" || strings.HasPrefix(line, "#") {
+		if line == "" || strings.HasPrefix(strings.TrimSpace(line), "#") {
 			continue
 		}
 
