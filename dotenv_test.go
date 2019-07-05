@@ -1,6 +1,8 @@
 package dotenv
 
 import (
+	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"syscall"
@@ -8,19 +10,83 @@ import (
 )
 
 func ExampleSetEnv() {
+	fileContent := []byte(`
+		TEST1 = 1
+		TEST2 = 2
+	`)
+
+	filePath := ".env"
+
+	if err := ioutil.WriteFile(filePath, fileContent, 0644); err != nil {
+		fmt.Println(err)
+	}
+	defer os.Remove(filePath)
+
 	SetEnv()
 
+	fmt.Println(os.Getenv("TEST1"))
+	fmt.Println(os.Getenv("TEST2"))
+
+	if err := os.Unsetenv("TEST1"); err != nil {
+		fmt.Println(err)
+	}
+	if err := os.Unsetenv("TEST2"); err != nil {
+		fmt.Println(err)
+	}
+
 	// Output:
-	// file: ".env" does not exist
+	// 1
+	// 2
 }
 
 func ExampleSetEnvFromPath() {
-	path := filepath.Join("testdata", "0.env")
+	fileContent := []byte(`TEST1 = 1
+# TEST2 = 2
+# environment variable #3
+TEST3 = 3
+`)
 
-	SetEnvFromPath(path)
+	filePath := "testdata/.env"
+
+	if err := ioutil.WriteFile(filePath, fileContent, 0644); err != nil {
+		fmt.Println(err)
+	}
+	defer os.Remove(filePath)
+
+	SetEnvFromPath(filePath)
+
+	fmt.Println(os.Getenv("TEST1"))
+	fmt.Println(os.Getenv("TEST2"))
+	fmt.Println(os.Getenv("TEST3"))
+
+	if err := os.Unsetenv("TEST1"); err != nil {
+		fmt.Println(err)
+	}
+	if err := os.Unsetenv("TEST2"); err != nil {
+		fmt.Println(err)
+	}
+	if err := os.Unsetenv("TEST3"); err != nil {
+		fmt.Println(err)
+	}
 
 	// Output:
-	// file: "testdata/0.env" does not exist
+	// 1
+	//
+	// 3
+}
+
+func TestSetEnvFromPath0(t *testing.T) {
+	ok := t.Run("SetEnvFromPath should not return an error if .env file does not exist", func(t *testing.T) {
+		path := filepath.Join("testdata", "0.env")
+
+		if err := SetEnvFromPath(path); err != nil {
+			t.Error(err)
+		}
+	})
+
+	if !ok {
+		t.Fail()
+	}
 }
 
 func TestSetEnvFromPath1(t *testing.T) {
@@ -34,14 +100,6 @@ func TestSetEnvFromPath1(t *testing.T) {
 
 	if !ok {
 		t.Fail()
-	}
-}
-
-func testVariableValue(t *testing.T, expected, name string) {
-	if got, ok := os.LookupEnv(name); ok {
-		if got != expected {
-			t.Errorf("Wrong env variable %q value! expected: %q, got: %q", name, expected, got)
-		}
 	}
 }
 
@@ -61,12 +119,7 @@ func TestSetEnvFromPath2(t *testing.T) {
 		t.Fail()
 	}
 
-	if err := os.Unsetenv("TEST1"); err != nil {
-		t.Error(err)
-	}
-	if err := os.Unsetenv("TEST2"); err != nil {
-		t.Error(err)
-	}
+	unsetVariables(t, "TEST1", "TEST2")
 }
 
 func TestSetEnvFromPath3(t *testing.T) {
@@ -86,15 +139,7 @@ func TestSetEnvFromPath3(t *testing.T) {
 		t.Fail()
 	}
 
-	if err := os.Unsetenv("TEST1"); err != nil {
-		t.Error(err)
-	}
-	if err := os.Unsetenv("TEST2"); err != nil {
-		t.Error(err)
-	}
-	if err := os.Unsetenv("TEST3"); err != nil {
-		t.Error(err)
-	}
+	unsetVariables(t, "TEST1", "TEST2", "TEST3")
 }
 
 func TestSetEnvFromPath4(t *testing.T) {
@@ -116,9 +161,7 @@ func TestSetEnvFromPath4(t *testing.T) {
 		t.Fail()
 	}
 
-	if err := os.Unsetenv("TEST1"); err != nil {
-		t.Error(err)
-	}
+	unsetVariables(t, "TEST1")
 }
 
 func TestSetEnvFromPath5(t *testing.T) {
@@ -183,5 +226,21 @@ func TestSetEnvFromPath7(t *testing.T) {
 	// change readed file permission back to default
 	if err := os.Chmod(path, originalMode); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func testVariableValue(t *testing.T, expected, name string) {
+	if got, ok := os.LookupEnv(name); ok {
+		if got != expected {
+			t.Errorf("Wrong env variable %q value! expected: %q, got: %q", name, expected, got)
+		}
+	}
+}
+
+func unsetVariables(t *testing.T, variables ...string) {
+	for _, v := range variables {
+		if err := os.Unsetenv(v); err != nil {
+			t.Error(err)
+		}
 	}
 }
